@@ -1,9 +1,10 @@
 
 #### Install Dependencies
 ```shell
-pip install BeautifulSoup4 requests
+conda env create -f PyWebScraper.yml
 ```
 #### Run
 ```shell
+conda activate PyWebScraper
 python main.py
 ```

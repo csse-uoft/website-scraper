@@ -1,0 +1,11 @@
+name: PyWebScraper
+channels:
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - pip:
+    - BeautifulSoup4 
+    - requests
+

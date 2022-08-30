@@ -23,12 +23,15 @@ def get_and_save_html(url: str, filepath: str):
     return text
 
 
-def get_page(url, filepath):
-
+def get_page(url, filepath, main_only=True):
+    print(url, filepath)
     text = get_and_save_html(url, filepath)
 
     soup = BeautifulSoup(text, "html.parser")
-    html_text = soup.get_text()
+    if main_only:
+        html_text = soup.find('main').extract().get_text()
+    else:
+        html_text = soup.get_text()
 
     f = open(f'{filepath}.txt', "w", encoding='utf-8')  # Creating txt File
 
@@ -58,7 +61,7 @@ def get_path(base_url: str, href: str):
 
 if __name__ == '__main__':
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    main_page = get_page(START_PAGE, '/')
+    main_page = get_page(START_PAGE, './')
     links = main_page.findAll('a')
 
     for a in links:
@@ -74,6 +77,6 @@ if __name__ == '__main__':
         if filepath.endswith('/'):
             filepath += 'index'
 
-        print(f'{href} -> {filepath}(.html|.txt)')
+        # print(f'{href} -> {filepath}(.html|.txt)')
         os.makedirs(dir_path, exist_ok=True)
         get_page(href, filepath)
