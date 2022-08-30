@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-import os
+import os, tqdm
 from urllib.parse import urlparse
 
 START_PAGE = 'https://www.evas.ca'
@@ -24,7 +24,6 @@ def get_and_save_html(url: str, filepath: str):
 
 
 def get_page(url, filepath, main_only=True):
-    print(url, filepath)
     text = get_and_save_html(url, filepath)
 
     soup = BeautifulSoup(text, "html.parser")
@@ -64,7 +63,7 @@ if __name__ == '__main__':
     main_page = get_page(START_PAGE, './')
     links = main_page.findAll('a')
 
-    for a in links:
+    for a in tqdm.tqdm(links):
         href = a.attrs.get('href')
 
         filepath = get_path(START_PAGE, href)
