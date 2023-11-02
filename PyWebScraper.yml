@@ -9,4 +9,4 @@ dependencies:
   - pip:
     - BeautifulSoup4 
     - requests
-
+    - selenium
