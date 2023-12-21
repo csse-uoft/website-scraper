@@ -5,6 +5,7 @@ channels:
   - defaults
 dependencies:
   - tqdm
+  - pyyaml
   - pip
   - pip:
     - BeautifulSoup4 

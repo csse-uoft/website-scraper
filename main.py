@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from requests_html import HTMLSession  
 import requests
-import os, tqdm, sys, json
+import os, tqdm, sys, json, yaml
 from urllib.parse import urljoin, urlparse
 
 import argparse
@@ -25,7 +25,7 @@ if START_PAGE is None:
 MAIN_TAG = args.m
 NAV_TAG = args.n
 RUN_JS = not not args.js
-OUTPUT_DIR = './output/'
+OUTPUT_DIR = './output'
 
 if RUN_JS:
     from selenium import webdriver
@@ -53,6 +53,7 @@ def render_HTML(url):
     return text
 
 def get_and_save_html(url: str, filepath: str):
+    print(filepath)
     text = render_HTML(url)
 
     if not filepath.endswith('.html'):
@@ -100,8 +101,29 @@ def get_path(base_url: str, href: str):
 
     return OUTPUT_DIR + '/' + parsed_url.hostname + '/' + parsed_url.path
 
+def dir_to_dict(path):
+
+    directory = {}
+
+    for dirname, dirnames, filenames in os.walk(path):
+        dn = os.path.basename(dirname)
+        directory[dn] = {}
+
+        if dirnames:
+            directory[dn]['sub'] = []
+            for d in dirnames:
+                directory[dn]['sub'].append(dir_to_dict(path=os.path.join(path, d)))
+
+            for f in filenames:
+                directory[dn][f]={f:None}
+        else:
+            directory[dn] = dict([(f,None) for f in filenames])
+
+        return directory
+        
 def scrape(start_page, search_tag, nav_tag):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
+    print(start_page)
     main_page = get_page(start_page, './', search_tag=search_tag)
     if nav_tag is not None:
         links = main_page.select(nav_tag)
@@ -124,10 +146,21 @@ def scrape(start_page, search_tag, nav_tag):
         os.makedirs(dir_path, exist_ok=True)
         get_page(href_path, filepath, search_tag=search_tag)
 
-
+    
 if __name__ == '__main__':
     scrape(start_page=START_PAGE, search_tag=MAIN_TAG, nav_tag=NAV_TAG)
 
+    parsed_url = urlparse(START_PAGE)
+    path = OUTPUT_DIR + parsed_url.hostname + parsed_url.path
+    directory = dir_to_dict(path=path)
+    directory['root'] = directory.pop('')
+
+    import json
+    with open(path+'hierarchy.json', 'w') as fp:
+        json.dump(directory, fp)
+
+    # with open(path+'hierarchy.json', 'r') as json_file:
+    #     data = json.load(json_file)
     try:
         DRIVER.quit()
     except:
